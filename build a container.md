@@ -1,7 +1,4 @@
 https://www.infoq.com/articles/build-a-container-golang/
-生词
-arbitrary 任意的；武断的；随心所欲的；专横的
-insecure
 
 我想玩个游戏。现在，在你的脑海里思考，然后告诉我“容器(container)”是什么。好了吗？好吧。让我猜猜你会说什么:
 
@@ -108,6 +105,27 @@ func must(err error) {
 	}
 }
 ```
+
+那这是做什么的呢? 我们从 main 开始，我们读第一个部分。如果它是‘ run’，那么我们运行 father ()方法，如果它是 child () ，那么我们运行 child 方法。parent方法运行“/proc/self/exe”，这是一个特殊文件，包含当前可执行文件的内存映像。换句话说，我们重新运行自己，但是传递 child 作为第一个参数
+
+这是怎么回事？其实没什么，它只是让我们执行另一个程序(`os.Args[2:]`) ，执行用户请求的程序。但是，通过这个简单的脚手架，我们可以创建一个容器。
+
+#### 第二步：添加命名空间
+要向我们的程序添加一些命名空间，我们只需要添加一行
+```go
+cmd.SysProcAttr = &syscall.SysProcAttr{
+	Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+}
+```
+如果您现在运行您的程序，您的程序将在 UTS、 PID 和 MNT 名称空间内运行
+
+#### 第三步：根文件系统
+
+
+
+## 所以容器究竟是什么？
+接下来可能会有点争议。对于我来说，容器是一种非常好的方式，可以在很大程度上隔离的情况下运行代码，并且成本低廉，但这并不是谈话的结束。容器是一种技术，而不是一种用户体验。作为一个用户，我不想把集装箱推向生产，就像一个使用 amazon.com 的购物者不想打电话给码头安排货物装运一样。
+
 
 
 
