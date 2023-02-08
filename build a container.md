@@ -49,6 +49,65 @@ Cgroup 可以诚实地成为它们自己的整篇文章(我保留编写一篇文
 内核将 Cgroup 公开为一个可以挂载的特殊文件系统。通过简单地将进程 ID 添加到任务文件，可以将进程或线程添加到 cgroup，然后通过编辑该目录中的文件来读取和配置各种值。
 
 ### 分层文件系统
+名称空间和 CGroup是关于容器化的隔离和资源共享。他们就像码头的大金属板和保安。分层文件系统是我们能够有效地移动整个机器映像的方式: 所以船会浮起来而不是下沉。
+
+在基本层次上，分层文件系统相当于优化调用，为每个容器创建根文件系统的副本。有很多方法可以做到这一点。Btrfs 使用拷贝在文件系统层进行写，Aufs 则使用“ union mount”。因为有很多方法可以达到这一步，这篇文章将使用一些非常简单的东西: 我们将真的做一个拷贝。虽然很慢，但能够工作。
+
+### 创建容器
+#### 第一步：建立骨架
+我们先把粗糙的骨架搭好。假设您已经安装了 golang 编程语言 SDK 的最新版本，然后打开一个编辑器，并复制到以下清单中。
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"syscall"
+)
+
+func main() {
+	switch os.Args[1] {
+	case "run":
+		parent()
+	case "child":
+		child()
+	default:
+		panic("wat should I do")
+	}
+}
+
+func parent() {
+	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[2:]...)...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("ERROR", err)
+		os.Exit(1)
+	}
+}
+
+func child() { 
+	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("ERROR", err)
+		os.Exit(1)
+	}
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+```
 
 
 
