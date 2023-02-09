@@ -1,6 +1,6 @@
 
 
-```docker
+```bash
 FROM node:11
 MAINTAINER easydoc.net
 
@@ -19,4 +19,17 @@ RUN npm install --registry=https://registry.npm.taobao.org
 # 如果还需要运行其他命令可以用 && 连接，也可以写成一个shell脚本去执行。
 # 例如 CMD cd /app && ./start.sh
 CMD node app.js
+```
+
+编译 `docker build -t test:v1` 
+```txt
+-t 设置镜像名字和版本号
+命令参考：https://docs.docker.com/engine/reference/commandline/build/
+```
+运行 docker run -p 8080:8080 --name test-hello test:v1
+```txt
+-p 映射容器内端口到宿主机
+--name 容器名字
+-d 后台运行
+命令参考文档：https://docs.docker.com/engine/reference/run/
 ```
