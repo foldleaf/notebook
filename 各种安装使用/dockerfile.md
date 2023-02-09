@@ -1,6 +1,6 @@
 
 
-```bash
+```docker
 FROM node:11
 MAINTAINER easydoc.net
 
