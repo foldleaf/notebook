@@ -14,7 +14,7 @@ https://www.infoq.com/articles/build-a-container-golang/
 
 一个词的意思太多了！“容器”这个词已经开始用于许多(有时是重叠的)概念。它被用于类似容器化，以及用于实现它的技术。如果我们把这些分开考虑，我们会得到一个更清晰的画面。那么，让我们来讨论一下为什么要使用容器，以及如何使用容器。(然后我们再说回为什么使用容器)。
 
-## 起初,
+## 起初
 最初，有这么一个程序。让我们称之为run.sh,现在需要把它拷贝到一个远程服务器上,并且运行它。然而，在远程计算机上运行任意代码是不安全的，并且难以管理和扩展。所以我们发明了虚拟专用服务器和用户权限。一切都很顺利。
 
 但是run.sh有一些依赖项，它需要主机有某些库，而且它在远程和本地工作完全不同。于是我们发明了AMIs (Amazon Machine Images) 、 VMDKs (VMware images) 、 Vagrantfiles 等等, 一切又很顺利。
@@ -120,11 +120,88 @@ cmd.SysProcAttr = &syscall.SysProcAttr{
 如果您现在运行您的程序，您的程序将在 UTS、 PID 和 MNT 名称空间内运行
 
 #### 第三步：根文件系统
+目前你的进程位于一组独立的命名空间中（此时可以随意尝试将其他名称空间添加到您的上面的Cloneflags 中）。但是文件系统看起来和主机一样，这是因为您处于挂载命名空间中，但是初始挂载是从创建的名称空间继承的。让我们改变一下。我们需要以下四行简单的代码来切换到根文件系统。将它们放在‘ child ()’函数的开始位置。
+```go
+must(syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, ""))
+	must(os.MkdirAll("rootfs/oldrootfs", 0700))
+	must(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
+	must(os.Chdir("/"))
+```
+最后两行很重要，它们告诉操作系统将“/”的工作目录移动到“ rootfs/oldrootfs”，并将新的 rootfs 目录交换到“/”。在 pivotroot 调用完成之后，容器中的/目录将引用 rootfs。（需要绑定挂载调用来满足“ pivotroot”命令的某些需求——操作系统要求使用“ pivetroot”来交换两个文件系统，这两个文件系统不是同一棵树的一部分，而是将rootf绑定到它自己实现的。没错，这很蠢）
 
+#### 第四步： 初始化容器的世界
+此时，您已经在一组独立的名称空间中运行了一个进程，并选择了一个根文件系统。我们已经跳过了设置 cgroups，尽管这非常简单，并且我们已经跳过了根文件系统管理，它允许您有效地下载和缓存我们“ pipitroot”到的根文件系统映像。
+
+我们还跳过了容器设置。这里有一个独立名称空间中的新容器。我们已经通过以 rootfs 为轴心设置了 mount 名称空间，但是其他名称空间有它们的默认内容。在实际的容器中，在运行用户进程之前，我们需要为容器配置“世界”。因此，例如，我们要设置网络，在运行进程之前切换到正确的 uid，设置我们想要的任何其他限制(比如删除功能和设置 rlimit)等等。这可能会推动我们超过100行。
+#### 第五步：归一
+因此，在这里，它是一个超级超级简单的容器，在(方式)不到100行的去。显然这是有意为之的简单。如果你在生产中使用它，你是疯了，更重要的是，你自己。但我认为，看到一些简单而粗糙的东西，可以让我们对正在发生的事情有一个真正有用的了解。让我们来看看清单 A。
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+	"os/exec"
+	"syscall"
+)
+
+func main() {
+	switch os.Args[1] {
+	case "run":
+		parent()
+	case "child":
+		child()
+	default:
+		panic("wat should I do")
+	}
+}
+
+func parent() {
+	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[2:]...)...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+	}
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("ERROR", err)
+		os.Exit(1)
+	}
+}
+
+func child() {
+	must(syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, ""))
+	must(os.MkdirAll("rootfs/oldrootfs", 0700))
+	must(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
+	must(os.Chdir("/"))
+
+	cmd := exec.Command(os.Args[2], os.Args[3:]...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
+		fmt.Println("ERROR", err)
+		os.Exit(1)
+	}
+}
+
+func must(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+```
 
 
 ## 所以容器究竟是什么？
-接下来可能会有点争议。对于我来说，容器是一种非常好的方式，可以在很大程度上隔离的情况下运行代码，并且成本低廉，但这并不是谈话的结束。容器是一种技术，而不是一种用户体验。作为一个用户，我不想把集装箱推向生产，就像一个使用 amazon.com 的购物者不想打电话给码头安排货物装运一样。
+接下来可能会有点争议。对于我来说，容器是一种非常好的方式，可以在很大程度上隔离的情况下运行代码，并且成本低廉，但这并不是谈话的结束。容器是一种技术，而不是一种用户体验。作为一个用户，我不想把集装箱推向生产，就像一个使用 amazon.com 的购物者不想打电话给码头安排货物装运一样。容器是构建在其上的一项非常棒的技术，但是我们不应该被移动机器映像的能力分散注意力，因为我们需要构建真正伟大的开发人员体验.
+
+平台即服务(PaaS)构建在容器之上，比如 Cloud Foundry，从基于代码而非容器的用户体验开始。对于大多数开发人员来说，他们想要做的就是推送他们的代码并让它运行。在幕后，Cloud Foundry ——以及大多数其他 PaaSes ——使用该代码并创建一个可缩放和管理的容器化映像.在 Cloud Foundry 的例子中，它使用了一个 buildpack，但是您可以跳过这一步，也可以推出一个从 Dockerfile 创建的 Docker 映像。
+
+使用 PaaS，容器的所有优势仍然存在——一致的环境、高效的资源管理等等——但是通过控制用户体验，PaaS 既可以为开发人员提供更简单的用户体验，又可以执行一些额外的技巧，比如在存在安全漏洞时修补根文件系统。更重要的是，平台提供了诸如数据库和消息队列之类的服务，您可以将其绑定到应用程序，从而消除了将所有内容都视为容器的需要。
 
 
 
