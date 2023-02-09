@@ -1,3 +1,4 @@
+```json
 {
     //自动保存
     "files.autoSave": "afterDelay",
@@ -65,3 +66,4 @@
     
 }
 
+```
