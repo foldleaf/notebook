@@ -68,37 +68,37 @@ int main()
 
 # 三、字体颜色
 
-<font color=NavajoWhite>NavajoWhite</font>
-color=Feldspar
-color=SandyBrown
-color=LightSalmon
-color=Salmon
-color=LightCoral
+<font color=NavajoWhite>NavajoWhite</font>  
+color=Feldspar  
+color=SandyBrown  
+color=LightSalmon  
+color=Salmon  
+color=LightCoral  
 
-color=Pink
-color=PaleVioletRed
-color=HotPink
+color=Pink  
+color=PaleVioletRed  
+color=HotPink  
 
-color=silver
-color=LightSlateGray
-color=SlateGray
-color=grey
-color=RosyBrown
-color=maroon
+color=silver  
+color=LightSlateGray  
+color=SlateGray  
+color=grey  
+color=RosyBrown  
+color=maroon  
 
-color=DarkSeaGreen
-color=LightSeaGreen
-<font color=SeaGreen>color=SeaGreen</font>
+color=DarkSeaGreen  
+color=LightSeaGreen  
+<font color=SeaGreen>color=SeaGreen</font>  
 
-color=PowderBlue
-color=LightSteelBlue
-color=CadetBlue
-color=navy
+color=PowderBlue  
+color=LightSteelBlue  
+color=CadetBlue  
+color=navy  
 
-color=Thistle
-color=Plum
-color=MediumPurple
-color=Purple
+color=Thistle  
+color=Plum  
+color=MediumPurple  
+color=Purple  
 
 
 
