@@ -69,6 +69,9 @@
     "powermode.combo.timeout": 5,
     //是否抖动
     "powermode.shake.enabled": false,
+    
+    // power mode插件相关配置 End
+    
     "explorer.compactFolders": false,
     "[vue]": {
         "editor.defaultFormatter": "octref.vetur"
@@ -82,6 +85,5 @@
     "leetcode.workspaceFolder": "d:\\LeetCodeStudy",
     "markdown-preview-enhanced.codeBlockTheme": "one-dark.css",
     "tabnine.experimentalAutoImports": true,
-    // power mode插件相关配置 End
 }
 ```
