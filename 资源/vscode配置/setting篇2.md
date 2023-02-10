@@ -1,3 +1,4 @@
+```json
 {
     "markdown-preview-enhanced.previewTheme": "github-dark.css",
     "workbench.editor.enablePreview": false,
@@ -83,3 +84,4 @@
     "tabnine.experimentalAutoImports": true,
     // power mode插件相关配置 End
 }
+```
