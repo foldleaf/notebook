@@ -1,3 +1,6 @@
+深度学习，决定从pytorch开始
+pytorch中文手册
+https://github.com/zergtant/pytorch-handbook
 ## 下载安装Anaconda
 在archlinux下
 ```bash
