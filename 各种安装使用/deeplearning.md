@@ -67,3 +67,24 @@ import torchvision
 ## 更多操作命令
 https://blog.csdn.net/qq_38870718/article/details/122796306
 
+## 配置Jupyter Notebook
+```bash
+#安装ipykernel
+conda install ipykernel
+#写入环境
+python -m ipykernel install  --name pytorch --display-name "Pytorch for Deeplearning"
+```
+定制 Jupyter Notebook
+```bash
+#切换回基础环境
+activate base
+#创建jupyter notebook配置文件
+jupyter notebook --generate-config
+## 这里会显示创建jupyter_notebook_config.py的具体位置
+```
+打开文件，修改
+```bash
+c.NotebookApp.notebook_dir = '' 默认目录位置
+c.NotebookApp.iopub_data_rate_limit = 100000000 这个改大一些否则有可能报错
+```
+
