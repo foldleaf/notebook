@@ -207,6 +207,5 @@ for{
 api测试工具访问，如果你的服务端会自动发数据的话，使用connect会创建tcp连接，将接受的数据会在控制台打印，并写入mongodb；
 使用disconnect接口，会断开对应已有的tcp连接
 
-POST:http://localhost:20000/connect/192.168.6.66:6666
-
-POST:http://localhost:20000/disconnect/192.168.6.66：6666
+POST:http://localhost:20000/connect/192.168.6.66:6666  
+POST:http://localhost:20000/disconnect/192.168.6.66:6666  
