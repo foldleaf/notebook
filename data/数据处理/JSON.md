@@ -74,3 +74,107 @@ type Person struct {
 }
 ```
 
+### 嵌套结构体
+#### 解析为单层json
+```go
+type User struct {
+	Name    string   `json:"name"`
+	Email   string   `json:"email"`
+	Hobby   []string `json:"hobby"`
+	Profile 
+}
+
+type Profile struct {
+	Website string `json:"site"`
+	Slogan  string `json:"slogan"`
+}
+
+u1 := User{
+		Name:  "小明",
+		Hobby: []string{"足球", "篮球"},
+	}
+```
+```json
+{
+    "name":"小明",
+    "email":"",
+    "hobby":["足球","篮球"],
+    "site":"",
+    "slogan":""
+}
+```
+#### 解析为多层嵌套json
+只需要添加给嵌套的字段json标签
+```go
+type User struct {
+	Name    string   `json:"name"`
+	Email   string   `json:"email"`
+	Hobby   []string `json:"hobby"`
+	Profile `json:"profile"`
+}
+```
+```json
+{
+    "name":"小明",
+    "email":"",
+    "hobby":["足球","篮球"],
+    "profile":
+        {
+            "site":"",
+            "slogan":""
+        }
+}
+```
+#### 忽略嵌套结构体的空值
+嵌套字段只使用 omitempty 标签是不行的，还需要加指针才能忽略空值情况
+```go
+type User struct {
+	Name    string   `json:"name"`
+	Email   string   `json:"email,omitempty"`
+	Hobby   []string `json:"hobby,omitempty"`
+	*Profile `json:"profile,omitempty"`
+}
+```
+#### 不修改原结构体忽略空值字段
+```go
+type User struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
+
+type PublicUser struct {
+	*User             // 匿名嵌套
+	Password *struct{} `json:"password,omitempty"`
+}
+type User struct {
+	Name     string `json:"name"`
+	Password string `json:"password"`
+}
+
+type PublicUser struct {
+	*User             // 匿名嵌套
+	Password *struct{} `json:"password,omitempty"`
+}
+
+func omitPasswordDemo() {
+	u1 := User{
+		Name:     "七米",
+		Password: "123456",
+	}
+	b, err := json.Marshal(PublicUser{User: &u1})
+	if err != nil {
+		fmt.Printf("json.Marshal u1 failed, err:%v\n", err)
+		return
+	}
+	fmt.Printf("str:%s\n", b)  // str:{"name":"七米"}
+}
+```
+### 字符串类型的数字解析
+因为数据是string类型，所以不能对应相应数据类型的字段。使用string标签。
+```go
+type Card struct {
+	ID    int64   `json:"id,string"`    // 添加string tag
+	Score float64 `json:"score,string"` // 添加string tag
+}
+jsonStr1 := `{"id": "1234567","score": "88.50"}`
+```
