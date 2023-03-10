@@ -60,6 +60,7 @@ char6:A(类型:int32)(65)(U+0041)
 char7:A(类型:int64)(65)(U+0041)
 ```
 # string
+## 字符数组
 string的底层是字符数组
 
 使用传统的`for-i++`循环时会按ASCII处理，按unit8的格式进行解析,得到的是[]byte;
@@ -108,8 +109,37 @@ str2:[g o の 世 界],[103 111 12398 19990 30028],[U+0067 U+006F U+306E U+4E16 
 str的ASCII长度:11
 str的UTF-8长度:5
 ```
-使用str[i]这种方式得到的是按ASCII解析的byte字符，显示不了UTF-8编码的字符，自然会出现乱码。  
+分割为[]byte字符数组自然显示不了UTF-8编码的字符，就会出现乱码。分割为[]rune字符数组才是按UTF-8处理的
 `g`和`o`分别由str[0]和str[1]表示;  
 `の`由str[2]、str[3]和str[4]表示;  
 `世`由str[5]、str[6]和str[7]表示；  
 `界`由str[8]、str[9]和str[10]表示。  
+## 修改string
+对一个字符串str，要修改其中某个字符，类似str[i]='A'这种修改方式是不行的。  
+虽说字符串可以当成字符数组来处理，但字符串的本质是有一个指针指向其底层的字符数组的，上述的修改方式并不会修改它的底层数组。  
+当然直接str="newString"直接替换掉str指向的字符数组也是可以的，不过这里讨论一下只替换部分字符
+```go
+// string --> []byte -->string
+s1:="wasd"
+s2:=[]byte(s1)
+s2[0]='W'
+fmt.Println(string(s2)) //Wasd
+
+// string --> []rune -->string
+s3:="早上好"
+s4:=[]rune(s3)
+s4[0]='晚'
+fmt.Println(string(s4)) //晚上好
+
+// strings中的方法
+s5 := "abcdab"
+old := "ab"
+new :="AB"
+// 把s5里old的字符换成new的字符，第四个参数是替换次数，-1是全部替换
+s6 := strings.Replace(s1, old, new, -1)
+fmt.Println(s4) //ABCcdAB
+
+// 全部替换，将指针指向其他字符数组
+str:="abcd"
+str="ABcd"
+```
