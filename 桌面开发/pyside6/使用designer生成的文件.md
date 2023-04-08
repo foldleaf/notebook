@@ -5,6 +5,7 @@
 pyside6-uic computer.ui -o computer.py
 ```
 在vscode中配置好Qt for Python插件后，只需要在ui文件处右键选择 `Compile Qt UI File(uic)` 即可转换
+
 可以右键选择 Edit QT UI DILE(designer)，便捷地在qt designer里打开并编辑ui文件
 # 使用生成的python文件
 ```python
