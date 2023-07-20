@@ -66,6 +66,7 @@ select Sname NAME,'Year of Birth:'BIRT1996-Sage BIRTHDAY,LOWER(SdeptDEPARTMENT F
  
 --涉及空值的查询
  select Sname,Sage from Student where Grade IS NULL;  /*查询成绩为空的学生*/
+
 ```
 
 # 更复杂查询
