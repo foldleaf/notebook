@@ -56,6 +56,7 @@ conda list
 
 至此，环境配置完毕
 
+vscode输出页面乱码问题: 添加系统全局变量PYTHONIOENCODING，值设置为UTF8，然后重启vscode即可
 
 
 
