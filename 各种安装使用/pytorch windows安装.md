@@ -4,9 +4,9 @@
 https://repo.anaconda.com/archive/
 
 环境变量添加路径:
-D:\anaconda3
-D:\anaconda3\Scripts
-D:\anaconda3\Library\bin
+D:\anaconda3  
+D:\anaconda3\Scripts  
+D:\anaconda3\Library\bin  
 其中`D:\anaconda3`是选择的Anaconda安装路径
 ## 修改镜像源配置
 清华源
