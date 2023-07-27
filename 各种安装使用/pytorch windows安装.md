@@ -28,7 +28,7 @@ conda config --remove-key channels
 ```bash
 conda create -n pytorch_cpu python=3.11
 ```
-命令python可以查看python版本，命令exit()退出python环境
+
 激活环境:
 ```bash
 activate pytorch_cpu
